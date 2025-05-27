@@ -14,3 +14,28 @@ add_executable(task_scheduler
     src/task.cpp
     src/utils.cpp
 )
+
+# Add GoogleTest
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+)
+FetchContent_MakeAvailable(googletest)
+
+enable_testing()
+
+# Add test executable
+add_executable(
+  task_test
+  tests/test_task.cpp
+  src/task.cpp
+  src/utils.cpp
+)
+target_link_libraries(
+  task_test
+  GTest::gtest_main
+)
+
+include(GoogleTest)
+gtest_discover_tests(task_test)
