@@ -1,9 +1,14 @@
 #pragma once
 
-struct Task{
-  int id;
-  int priority;
-  std::function<void()> execute;
+#include <string>
+#include <functional>
 
-  bool operator==(const Task&) const;
+class Task{
+  public:
+    std::string id;
+    int priority;
+    std::function<void()> execute;
+
+    Task(std::function<void()>, int);
+    bool operator==(const Task&) const;
 };
