@@ -1,0 +1,21 @@
+#pragma once
+#include <vector>
+#include "Task.hpp"
+
+class PriorityQueue{
+  public:
+    PriorityQueue(int);
+    void buildHeap(const std::vector<Task>&);
+    void insertTask(Task&);
+    Task* getHighestPriority();
+    Task extractHighestPriority();
+    void deleteTask(Task&);
+    void printQueue();
+    
+  private:
+    std::vector<Task> array;
+    int size;
+    int capacity;
+
+    void heapify(int);
+};
