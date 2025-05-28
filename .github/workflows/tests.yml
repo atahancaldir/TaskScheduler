@@ -20,6 +20,7 @@ jobs:
 
       - name: Build
         run: |
+          cd task_scheduler
           mkdir build
           cd build
           cmake ..
@@ -27,6 +28,7 @@ jobs:
       
       - name: Test
         run: |
+          cd task_scheduler
           cd build  
           ctest --output-on-failure
         continue-on-error: false
