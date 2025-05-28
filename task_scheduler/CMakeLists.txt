@@ -23,19 +23,14 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(googletest)
 
+# Enable CTest
 enable_testing()
 
-# Add test executable
-add_executable(
-  task_test
-  tests/test_task.cpp
-  src/task.cpp
-  src/utils.cpp
-)
-target_link_libraries(
-  task_test
-  GTest::gtest_main
-)
+# Add test executables
+add_executable(test_task tests/test_task.cpp src/task.cpp src/utils.cpp)
 
-include(GoogleTest)
-gtest_discover_tests(task_test)
+# Link with GTest
+target_link_libraries(test_task GTest::gtest_main)
+
+# Add tests to CTest
+add_test(NAME test_task COMMAND test_task)

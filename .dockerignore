@@ -1,3 +1,7 @@
-/.git
-/.gitignore
-*/build
+.git
+.gitignore
+*/build/
+README.md
+*.o
+*.a
+*.so
