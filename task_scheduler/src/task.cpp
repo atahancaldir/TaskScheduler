@@ -1,5 +1,5 @@
 #include "task.hpp"
-#include "../include/utils.hpp"
+#include "utils.hpp"
 
 Task::Task(std::function<void()> func, int priority_) : priority(priority_){
   id = utils::generateUUID();

@@ -6,7 +6,10 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Add include directory
-include_directories(include)
+include_directories(
+  include
+  external/cxxopts
+)
 
 # Add executable
 add_executable(task_scheduler
@@ -28,9 +31,12 @@ enable_testing()
 
 # Add test executables
 add_executable(test_task tests/test_task.cpp src/task.cpp src/utils.cpp)
+add_executable(test_priority_queue tests/test_priority_queue.cpp src/task.cpp src/priority_queue.cpp src/utils.cpp)
 
 # Link with GTest
 target_link_libraries(test_task GTest::gtest_main)
+target_link_libraries(test_priority_queue GTest::gtest_main)
 
 # Add tests to CTest
 add_test(NAME test_task COMMAND test_task)
+add_test(NAME test_priority_queue COMMAND test_task)
