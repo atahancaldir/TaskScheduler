@@ -7,7 +7,7 @@ class PriorityQueue{
   public:
     PriorityQueue(int);
     void buildHeap(const std::vector<Task>&);
-    void insertTask(Task&);
+    void insertTask(const Task&);
     Task* getHighestPriority();
     Task extractHighestPriority();
     void deleteTask(Task&);
