@@ -1,4 +1,5 @@
 #include "cxxopts.hpp"
+#include "logger.hpp"
 #include <iostream>
 #include <functional>
 #include <string>
@@ -10,12 +11,12 @@ int main(int argc, char* argv[]){
   // regular task, timed task (periodic, start time), file-based task
 
   options.add_options()
-  ("a,add", "Add a new task", cxxopts::value<std::string>())
+  ("a,add", "Add a new task (type command in quotation marks)", cxxopts::value<std::string>())
   ("c,clear", "Clear the task queue")
   ("d,delete", "Delete a task", cxxopts::value<std::string>())
   ("h,help", "Print usage")
   ("l,list", "List all tasks")
-  ("log", "Show n lines of logs", cxxopts::value<int>())
+  ("log", "Show n lines of logs", cxxopts::value<int>()->default_value("10")->implicit_value("10"))
   ("s,start", "Start the task scheduler")
   ("x,stop", "Stop the task scheduler")
   ;
@@ -28,8 +29,32 @@ int main(int argc, char* argv[]){
       std::cout << options.help() << std::endl;
       return 0;
     }
+
+    else if (result.count("add")){
+      std::string command = result["add"].as<std::string>();
+    }
+
+    else if (result.count("clear")){}
+    
+    else if (result.count("delete")){
+      std::string taskId = result["delete"].as<std::string>();
+    }
+
+    else if (result.count("list")){}
+
+    else if (result.count("log")){
+      int nLines = result["log"].as<int>();
+      Logger::printLogs(nLines);
+    }
+    
+    else if (result.count("start")){}
+    
+    else if (result.count("stop")){}
+
   } catch(const std::exception& e){
-    std::cout << "Argument parsing failed: " << e.what() << std::endl;
+    std::string message = "Argument parsing failed: " + std::string(e.what());
+    std::cout << message << std::endl;
+    Logger::log(message);
     return 1;
   }
 
