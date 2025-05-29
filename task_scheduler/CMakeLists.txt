@@ -15,7 +15,6 @@ include_directories(
 add_executable(task_scheduler
     src/main.cpp
     src/task.cpp
-    src/utils.cpp
 )
 
 # Add GoogleTest
@@ -30,8 +29,8 @@ FetchContent_MakeAvailable(googletest)
 enable_testing()
 
 # Add test executables
-add_executable(test_task tests/test_task.cpp src/task.cpp src/utils.cpp)
-add_executable(test_priority_queue tests/test_priority_queue.cpp src/task.cpp src/priority_queue.cpp src/utils.cpp)
+add_executable(test_task tests/test_task.cpp src/task.cpp)
+add_executable(test_priority_queue tests/test_priority_queue.cpp src/task.cpp src/priority_queue.cpp )
 
 # Link with GTest
 target_link_libraries(test_task GTest::gtest_main)
