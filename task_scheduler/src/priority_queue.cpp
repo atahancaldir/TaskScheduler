@@ -1,10 +1,9 @@
 #include "priority_queue.hpp"
 #include <iostream>
 
-PriorityQueue::PriorityQueue(int capacity_) : capacity(capacity_){
+PriorityQueue::PriorityQueue(size_t capacity_) : capacity(capacity_){
   size = 0;
-  capacity = capacity_;
-  array.reserve(capacity_);
+  array.resize(capacity_);
 }
 
 // Restore heap order at index i
@@ -43,7 +42,7 @@ void PriorityQueue::buildHeap(const std::vector<Task>& arr){
 void PriorityQueue::insertTask(const Task& t){
   if (size == capacity){
     capacity *= 2;
-    array.reserve(capacity);
+    array.resize(capacity);
   }
 
   size++;
@@ -102,10 +101,7 @@ void PriorityQueue::deleteTask(Task& task){
   heapify(index);
 }
 
-// Print the priority queue
-void PriorityQueue::printQueue(){
-  for(int i=0; i<size; i++){
-    std::cout << "id: " << array[i].id << ", priority:" << array[i].priority << " | ";
-  }
-  std::cout << std::endl;
+// Return the priority queue
+std::vector<Task>& PriorityQueue::getQueue(){
+  return array;
 }

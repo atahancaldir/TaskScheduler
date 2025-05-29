@@ -5,13 +5,13 @@
 
 class PriorityQueue{
   public:
-    PriorityQueue(int);
+    PriorityQueue(size_t=10);
     void buildHeap(const std::vector<Task>&);
     void insertTask(const Task&);
     Task* getHighestPriority();
     Task extractHighestPriority();
     void deleteTask(Task&);
-    void printQueue();
+    std::vector<Task>& getQueue();
     
   private:
     std::vector<Task> array;
