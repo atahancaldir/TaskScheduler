@@ -3,14 +3,17 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <sstream>
 
 class TablePrinter{
   public:
     TablePrinter();
     void addColumn(std::string, int);
-    void printHeader();
-    void printFooter();
+    std::string getHeader();
+    std::string getFooter();
     TablePrinter& operator<<(const std::string& value);
+    std::string getCurrentRow();
+    void clearCurrentRow();
 
   private:
     std::string separator;
@@ -19,7 +22,7 @@ class TablePrinter{
     int width;
     int itemCount;
 
-    void printRow(const std::vector<std::string>&, bool, bool);
+    std::string formatRow(const std::vector<std::string>&, bool, bool);
 };
 
 TablePrinter::TablePrinter(){
@@ -31,60 +34,74 @@ void TablePrinter::addColumn(std::string name, int size){
   columns.push_back(std::make_pair(name, size));
 }
 
-void TablePrinter::printRow(const std::vector<std::string>& items, 
-                            bool useUpperSeparator=false, 
-                            bool useLowerSeparator=false){
-  std::string row = "|";
-  for(int i=0; i<columns.size(); i++){
-    int columnSize = columns[i].second;
-    int contentSize = items[i].size();
-    int halfSpaceSize = ceil((columnSize-contentSize)/2.0);
-    int currentColumnSize = 0;
+std::string TablePrinter::formatRow(const std::vector<std::string>& items, 
+                                  bool useUpperSeparator=false, 
+                                  bool useLowerSeparator=false) {
+    std::stringstream ss;
+    std::string row = "|";
+    
+    for(int i=0; i<columns.size(); i++) {
+        int columnSize = columns[i].second;
+        int contentSize = items[i].size();
+        int halfSpaceSize = ceil((columnSize-contentSize)/2.0);
+        int currentColumnSize = 0;
 
-    for(int i=0; i<halfSpaceSize; i++){
-      row += " ";
-      currentColumnSize++;
+        for(int i=0; i<halfSpaceSize; i++) {
+            row += " ";
+            currentColumnSize++;
+        }
+        row += items[i];
+        currentColumnSize += items[i].size();
+        while(currentColumnSize < columnSize) {
+            row += " ";
+            currentColumnSize++;
+        }
+        row += "|";
     }
-    row += items[i];
-    currentColumnSize+= items[i].size();
-    while(currentColumnSize < columnSize){
-      row += " ";
-      currentColumnSize++;
-    }
-    row += "|";
-  }
-  width = row.size();
+    width = row.size();
 
-  if(separator.empty()){
-    separator = "+";
-    for(int i=0; i<width-2; i++){
-        separator += "-";
+    if(separator.empty()) {
+        separator = "+";
+        for(int i=0; i<width-2; i++) {
+            separator += "-";
+        }
+        separator += "+\n";
     }
-    separator += "+\n";
-  }
 
-  if(useUpperSeparator) std::cout << separator;
-  std::cout << row << std::endl;
-  if(useLowerSeparator) std::cout << separator;
+    if(useUpperSeparator) ss << separator;
+    ss << row << "\n";
+    if(useLowerSeparator) ss << separator;
+    
+    return ss.str();
 }
 
-void TablePrinter::printHeader(){
-  std::vector<std::string> columnNames;
-  for(const auto& [name, size] : columns){
-    columnNames.push_back(name);
-  }
-  printRow(columnNames, true, true);
+std::string TablePrinter::getHeader() {
+    std::vector<std::string> columnNames;
+    for(const auto& [name, size] : columns) {
+        columnNames.push_back(name);
+    }
+    return formatRow(columnNames, true, true);
 }
 
-void TablePrinter::printFooter(){
-  std::cout << separator << std::endl;
+std::string TablePrinter::getFooter() {
+    return separator;
 }
 
-TablePrinter& TablePrinter::operator<<(const std::string& item){
-  currentRow.push_back(item);
-  if(currentRow.size() == columns.size()){
-    printRow(currentRow);
+std::string TablePrinter::getCurrentRow() {
+    if (currentRow.size() == columns.size()) {
+        return formatRow(currentRow);
+    }
+    return "";
+}
+
+void TablePrinter::clearCurrentRow() {
     currentRow.clear();
-  }
-  return *this;
+}
+
+TablePrinter& TablePrinter::operator<<(const std::string& item) {
+    currentRow.push_back(item);
+    if(currentRow.size() == columns.size()) {
+        clearCurrentRow();
+    }
+    return *this;
 }

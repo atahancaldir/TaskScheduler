@@ -34,6 +34,11 @@ int main(int argc, char* argv[]){
     Daemon& daemon = Daemon::getInstance();
 
     if (result.count("start")){
+      if(daemon.isRunning()){
+        std::cout << "Task scheduler is already running, to see details use -l flag" << std::endl;
+        return 0;
+      }
+
       std::string algorithm = result["start"].as<std::string>();
       SchedulingType schedulingType;
 

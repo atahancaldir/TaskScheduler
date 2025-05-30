@@ -11,7 +11,7 @@ class PriorityQueue{
     Task* getHighestPriority();
     Task extractHighestPriority();
     void deleteTask(Task&);
-    std::vector<Task>& getQueue();
+    const std::vector<Task>& getQueue() const;
     
   private:
     std::vector<Task> array;

@@ -59,6 +59,8 @@ void Daemon::stop(){
   running_ = false;
   cleanupSocket();
   removePidFile();
+
+  Logger::log("Daemon is stopped");
 }
 
 bool Daemon::isRunning() const {
@@ -92,10 +94,14 @@ void Daemon::daemonize(){
 void Daemon::writePidFile(){
   std::ofstream pidFile(pid_file_);
   pidFile << getpid();
+
+  Logger::log("Created PID file");
 }
 
 void Daemon::removePidFile(){
   fs::remove(pid_file_);
+
+  Logger::log("Created PID file");
 }
 
 void Daemon::setupSignalHandlers(){
@@ -163,7 +169,7 @@ void Daemon::handleCommand(const std::string& command, int client_fd){
   }else if (cmd == "delete"){
     // TODO: handle command
   }else if (cmd == "list"){
-    // TODO: handle command
+    response = scheduler_->getQueueStatus();
   } else if (cmd == "stop"){
     stop();
   }

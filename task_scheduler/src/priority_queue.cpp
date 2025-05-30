@@ -102,6 +102,6 @@ void PriorityQueue::deleteTask(Task& task){
 }
 
 // Return the priority queue
-std::vector<Task>& PriorityQueue::getQueue(){
+const std::vector<Task>& PriorityQueue::getQueue() const {
   return array;
 }

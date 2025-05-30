@@ -10,7 +10,7 @@ enum SchedulingType{
 class Scheduler{
   public:
     Scheduler(SchedulingType);
-    void prettyPrintQueue();
+    std::string getQueueStatus();
 
   private:
     PriorityQueue pq;
