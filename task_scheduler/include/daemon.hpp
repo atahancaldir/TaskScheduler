@@ -12,12 +12,12 @@ class Daemon{
     Daemon(const Daemon&) = delete;
     Daemon& operator=(const Daemon&) = delete;
 
-    bool start();
+    bool start(SchedulingType schedulingType = fcfs);
     void stop();
     bool isRunning() const;
 
     bool sendCommand(const std::string& command);
-    void handleCommand(const std::string& command);
+    void handleCommand(const std::string& command, int client_fd);
   
   private:
     Daemon() = default;
@@ -43,4 +43,4 @@ class Daemon{
 
     // Static signal handler
     static void signalHandler(int signum);
-}
+};

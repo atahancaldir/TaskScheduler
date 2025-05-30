@@ -14,6 +14,7 @@ include_directories(
 # Add executable
 add_executable(task_scheduler
     src/main.cpp
+    src/daemon.cpp
     src/scheduler.cpp
     src/priority_queue.cpp
     src/task.cpp

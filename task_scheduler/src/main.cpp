@@ -1,5 +1,6 @@
 #include "cxxopts.hpp"
 #include "logger.hpp"
+#include "daemon.hpp"
 #include <iostream>
 #include <functional>
 #include <string>
@@ -17,7 +18,7 @@ int main(int argc, char* argv[]){
   ("h,help", "Print usage")
   ("l,list", "List all tasks")
   ("log", "Show n lines of logs", cxxopts::value<int>()->default_value("10")->implicit_value("10"))
-  ("s,start", "Start the task scheduler")
+  ("s,start", "Start the task scheduler", cxxopts::value<std::string>()->default_value("fcfs"))
   ("x,stop", "Stop the task scheduler")
   ;
 
@@ -30,27 +31,59 @@ int main(int argc, char* argv[]){
       return 0;
     }
 
-    else if (result.count("add")){
-      std::string command = result["add"].as<std::string>();
+    Daemon& daemon = Daemon::getInstance();
+
+    if (result.count("start")){
+      std::string algorithm = result["start"].as<std::string>();
+      SchedulingType schedulingType;
+
+      if (algorithm == "fcfs"){
+        schedulingType = fcfs;
+      } else if (algorithm == "round-robin"){
+        schedulingType = roundRobin;
+      } else{
+        std::cout << "Invalid scheduling algorithm. Options: 'fcfs', 'round-robin'" << std::endl;
+        return 1;
+      }
+
+      if (!daemon.start(schedulingType)){
+        std::cout << "Failed to start task scheduler" << std::endl;
+        return 1;
+      }
+      std::cout << "Task scheduler started successfully" << std::endl;
+    } else if (result.count("stop")){
+      daemon.stop();
+      std::cout << "Task scheduler stopped" << std::endl;
     }
+    else{
+      if (!daemon.isRunning()){
+        std::cout << "Task scheduler is not running. Start is first with --start" << std::endl;
+        return 1;
+      }
 
-    else if (result.count("clear")){}
-    
-    else if (result.count("delete")){
-      std::string taskId = result["delete"].as<std::string>();
+      std::string command;
+
+      if (result.count("add")){
+        command = "add " + result["add"].as<std::string>();
+      } else if (result.count("clear")){
+        command = "clear";
+      } else if (result.count("delete")){
+        command = "delete " + result["delete"].as<std::string>();
+      } else if (result.count("list")){
+        command = "list";
+      } else if (result.count("log")){
+        int nLines = result["log"].as<int>();
+        Logger::printLogs(nLines);
+        return 0;
+      }
+
+      if (!command.empty()){
+        if (!daemon.sendCommand(command)){
+          std::cout << "Failed to send command to task scheduler" << std::endl;
+          return 1;
+        }
+      }
     }
-
-    else if (result.count("list")){}
-
-    else if (result.count("log")){
-      int nLines = result["log"].as<int>();
-      Logger::printLogs(nLines);
-    }
-    
-    else if (result.count("start")){}
-    
-    else if (result.count("stop")){}
-
   } catch(const std::exception& e){
     std::string message = "Argument parsing failed: " + std::string(e.what());
     std::cout << message << std::endl;
