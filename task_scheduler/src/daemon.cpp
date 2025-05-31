@@ -101,7 +101,7 @@ void Daemon::writePidFile(){
 void Daemon::removePidFile(){
   fs::remove(pid_file_);
 
-  Logger::log("Created PID file");
+  Logger::log("Removed PID file");
 }
 
 void Daemon::setupSignalHandlers(){
@@ -140,8 +140,9 @@ bool Daemon::setupSocket(){
 void Daemon::cleanupSocket(){
   if (server_fd_ >= 0){
     close(server_fd_);
-    fs::remove(socket_path_);
   }
+  fs::remove(socket_path_);
+  Logger::log("Socket cleaned up");
 }
 
 void Daemon::handleClientConnection(int client_fd){
