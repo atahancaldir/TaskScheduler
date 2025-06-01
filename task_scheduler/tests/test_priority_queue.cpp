@@ -3,10 +3,10 @@
 #include <gtest/gtest.h>
 
 TEST(PriorityQueueTest, CreatingQueue){
-  PriorityQueue p(23);
-  p.insertTask(Task([](){}, 3));
-  p.insertTask(Task([](){}, 2));
-  p.insertTask(Task([](){}, 1));
+  PriorityQueue pq(23);
+  pq.insertTask(Task("task 1", [](){}, 3));
+  pq.insertTask(Task("task 2", [](){}, 2));
+  pq.insertTask(Task("task 3", [](){}, 1));
 
-  EXPECT_EQ(p.getHighestPriority()->priority, 3);
+  EXPECT_EQ(pq.getHighestPriority()->priority, 3);
 }
