@@ -2,14 +2,7 @@
 
 #include <string>
 #include <functional>
-
-enum TaskStatus{
-  pending,
-  running,
-  finished,
-  killed,
-  failed,
-};
+#include "constants.hpp"
 
 class Task{
   public:

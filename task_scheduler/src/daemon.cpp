@@ -156,6 +156,8 @@ void Daemon::handleClientConnection(int client_fd){
   }
 }
 
+
+// Handle command coming from CLI in the background
 void Daemon::handleCommand(const std::string& command, int client_fd){
   std::istringstream iss(command);
   std::string cmd;
@@ -167,17 +169,22 @@ void Daemon::handleCommand(const std::string& command, int client_fd){
     // TODO: handle command
   } else if (cmd == "clear"){
     // TODO: handle command
+  } else if (cmd == "status"){
+    // TODO: handle command
   }else if (cmd == "delete"){
     // TODO: handle command
-  }else if (cmd == "list"){
+  } else if (cmd == "list"){
     response = scheduler_->getQueueStatus();
-  } else if (cmd == "stop"){
+  } else if (cmd == "algorithm"){
+    response = scheduler_->getQueueStatus();
+  }else if (cmd == "stop"){
     stop();
   }
 
   send(client_fd, response.c_str(), response.length(), 0);
 }
 
+// Send command from CLI to background
 bool Daemon::sendCommand(const std::string& command){
   int sock = socket(AF_UNIX, SOCK_STREAM, 0);
   if (sock < 0){

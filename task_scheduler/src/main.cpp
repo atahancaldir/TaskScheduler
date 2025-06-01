@@ -1,6 +1,7 @@
 #include "cxxopts.hpp"
 #include "logger.hpp"
 #include "daemon.hpp"
+#include "constants.hpp"
 #include <iostream>
 #include <functional>
 #include <string>
@@ -12,11 +13,12 @@ int main(int argc, char* argv[]){
   // regular task, timed task (periodic, start time), file-based task
 
   options.add_options()
-  ("a,add", "Add a new task (type command in quotation marks)", cxxopts::value<std::string>())
+  ("a,add", "Add a new task")
   ("c,clear", "Clear the task queue")
   ("d,delete", "Delete a task", cxxopts::value<std::string>())
   ("h,help", "Print usage")
   ("l,list", "List all tasks")
+  ("status", "Status of task scheduler")
   ("log", "Show n lines of logs", cxxopts::value<int>()->default_value("10")->implicit_value("10"))
   ("s,start", "Start the task scheduler", cxxopts::value<std::string>()->default_value("fcfs"))
   ("x,stop", "Stop the task scheduler")
@@ -42,12 +44,14 @@ int main(int argc, char* argv[]){
       std::string algorithm = result["start"].as<std::string>();
       SchedulingType schedulingType;
 
-      if (algorithm == "fcfs"){
-        schedulingType = fcfs;
-      } else if (algorithm == "round-robin"){
-        schedulingType = roundRobin;
+      if(constants::SCHEDULER_TYPE_VALUES.find(algorithm) != constants::SCHEDULER_TYPE_VALUES.end()){
+        schedulingType = constants::SCHEDULER_TYPE_VALUES.at(algorithm);
       } else{
-        std::cout << "Invalid scheduling algorithm. Options: 'fcfs', 'round-robin'" << std::endl;
+        std::cout << "Invalid scheduling algorithm. Options:";
+        for(auto& [key, value] : constants::SCHEDULER_TYPE_VALUES){
+          std::cout << key << " |";
+        }
+        std::cout << std::endl;
         return 1;
       }
 
@@ -57,6 +61,8 @@ int main(int argc, char* argv[]){
       }
       std::cout << "Task scheduler started successfully" << std::endl;
     } else if (result.count("stop")){
+      if (!daemon.isRunning()) 
+        return 0;
       daemon.stop();
       std::cout << "Task scheduler stopped" << std::endl;
     }
@@ -69,12 +75,14 @@ int main(int argc, char* argv[]){
       std::string command;
 
       if (result.count("add")){
-        command = "add " + result["add"].as<std::string>();
+        command = "add ";
       } else if (result.count("clear")){
         command = "clear";
       } else if (result.count("delete")){
         command = "delete " + result["delete"].as<std::string>();
-      } else if (result.count("list")){
+      } else if (result.count("status")){
+        command = "status";
+      }else if (result.count("list")){
         command = "list";
       } else if (result.count("log")){
         int nLines = result["log"].as<int>();
