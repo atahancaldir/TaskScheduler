@@ -5,6 +5,6 @@
 class TaskQueue : public BaseQueue{
   public:
     TaskQueue(size_t=10);
-    void insertTask(const Task&);
-    void deleteTask(Task&);
+    void insertTask(const Task&) override;
+    void deleteTask(const Task&) override;
 };

@@ -75,7 +75,7 @@ Task PriorityQueue::extractHighestPriority(){
 }
 
 // Delete task from priority queue
-void PriorityQueue::deleteTask(Task& task){
+void PriorityQueue::deleteTask(const Task& task){
   int index = -1;
   for(int i=0; i<size; i++){
     if(array[i] == task){

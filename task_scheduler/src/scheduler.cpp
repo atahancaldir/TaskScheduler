@@ -1,11 +1,21 @@
 #include "scheduler.hpp"
 #include "table_printer.hpp"
+#include "priority_queue.hpp"
+#include "task_queue.hpp"
 #include "task.hpp"
 #include <iostream>
 #include <sstream>
 
 Scheduler::Scheduler(SchedulingType schedulerType_) : schedulerType(schedulerType_){
-  pq = PriorityQueue();
+  if (schedulerType == SchedulingType::fcfs){
+    queue = new TaskQueue();
+  } else if (schedulerType == SchedulingType::roundRobin){
+    queue = new PriorityQueue();
+  }
+}
+
+Scheduler::~Scheduler(){
+  delete queue;
 }
 
 SchedulingType Scheduler::getSchedulingType(){
@@ -34,7 +44,7 @@ std::string Scheduler::getQueueStatus() {
     ss << tp.getHeader();
 
     int order = 0;
-    for(const Task& task : pq.getQueue()) {
+    for(const Task& task : queue->getQueue()) {
       if(task.id.empty()) continue;
         
       tp << std::to_string(++order) 

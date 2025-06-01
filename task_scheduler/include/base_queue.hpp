@@ -9,7 +9,7 @@ class BaseQueue{
     virtual ~BaseQueue() = default;
 
     virtual void insertTask(const Task&) = 0;
-    virtual void deleteTask(Task&) = 0;
+    virtual void deleteTask(const Task&) = 0;
 
     const std::vector<Task>& getQueue() const;
     bool isEmpty() const { return size == 0; }

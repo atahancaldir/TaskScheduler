@@ -1,18 +1,17 @@
 #pragma once
 
-#include "priority_queue.hpp"
+#include "base_queue.hpp"
 #include "constants.hpp"
-#include <queue>
 
 class Scheduler{
   public:
     Scheduler(SchedulingType);
+    ~Scheduler();
     SchedulingType getSchedulingType();
     std::string getQueueStatus();
     bool addTask(std::string);
 
   private:
-    PriorityQueue pq;
-    // std::queue<Task&> taskQueue;
+    BaseQueue* queue;
     SchedulingType schedulerType;
 };
