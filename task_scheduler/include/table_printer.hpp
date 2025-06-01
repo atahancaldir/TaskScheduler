@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <cmath>
 
 class TablePrinter{
   public:
@@ -43,7 +44,7 @@ std::string TablePrinter::formatRow(const std::vector<std::string>& items,
     for(int i=0; i<columns.size(); i++) {
         int columnSize = columns[i].second;
         int contentSize = items[i].size();
-        int halfSpaceSize = ceil((columnSize-contentSize)/2.0);
+        int halfSpaceSize = std::ceil((columnSize-contentSize)/2.0);
         int currentColumnSize = 0;
 
         for(int i=0; i<halfSpaceSize; i++) {
