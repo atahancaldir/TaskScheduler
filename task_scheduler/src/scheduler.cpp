@@ -27,6 +27,22 @@ bool Scheduler::addTask(std::string taskString){
   return true;
 }
 
+bool Scheduler::deleteTask(std::string taskID){
+
+}
+
+bool Scheduler::run(){
+
+}
+
+bool Scheduler::pause(){
+  
+}
+
+void Scheduler::clearQueue(){
+  queue->clear();
+}
+
 std::string Scheduler::getQueueStatus() {
     std::stringstream ss;
     

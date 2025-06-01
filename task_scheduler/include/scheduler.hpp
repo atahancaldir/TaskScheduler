@@ -10,6 +10,10 @@ class Scheduler{
     SchedulingType getSchedulingType();
     std::string getQueueStatus();
     bool addTask(std::string);
+    bool deleteTask(std::string);
+    void clearQueue();
+    bool run();
+    bool pause();
 
   private:
     BaseQueue* queue;

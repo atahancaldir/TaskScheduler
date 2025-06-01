@@ -10,3 +10,8 @@ BaseQueue::BaseQueue(size_t capacity_){
 const std::vector<Task>& BaseQueue::getQueue() const {
   return array;
 }
+
+void BaseQueue::clear(){
+  array.clear();
+  size = 0;
+}

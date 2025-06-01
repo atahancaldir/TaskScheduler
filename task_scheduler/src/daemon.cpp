@@ -167,14 +167,32 @@ void Daemon::handleCommand(const std::string& command, int client_fd){
   if (cmd == "add"){
     std::string taskString = command.substr(command.find(" ")+1);
     if (scheduler_->addTask(taskString)){
-      response = "Task added to queue successfully";
+      response = "Task is added to queue";
     } else{
       response = "Task could not be added to queue";
     }
   } else if (cmd == "clear"){
-    // TODO: handle command
+    scheduler_->clearQueue();
+    response = "Task queue is cleared";
   } else if (cmd == "delete"){
-    // TODO: handle command
+    std::string taskID = command.substr(command.find(" ")+1);
+    if (scheduler_->deleteTask(taskID)){
+      response = "Task is deleted";
+    } else{
+      response = "Task could not be deleted";
+    }
+  } else if (cmd == "run"){
+    if (scheduler_->run()){
+      response = "Task queue is running";
+    } else{
+      response = "Task queue could not be ran";
+    }
+  } else if (cmd == "pause"){
+    if (scheduler_->pause()){
+      response = "Task queue is paused";
+    } else{
+      response = "Task queue could not be paused";
+    }
   } else if (cmd == "list"){
     response = scheduler_->getQueueStatus();
   } else if (cmd == "algorithm"){

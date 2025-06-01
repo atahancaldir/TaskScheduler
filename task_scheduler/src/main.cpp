@@ -30,6 +30,8 @@ int main(int argc, char* argv[]){
   ("d,delete", "Delete a task", cxxopts::value<std::string>())
   ("h,help", "Print usage")
   ("l,list", "List all tasks")
+  ("r,run", "Run/resume task scheduler")
+  ("p,pause", "Pause task scheduler")
   ("log", "Show n lines of logs", cxxopts::value<int>()->default_value("10")->implicit_value("10"))
   ("s,start", "Start the task scheduler", cxxopts::value<std::string>()->default_value("fcfs"))
   ("x,stop", "Stop the task scheduler")
@@ -105,11 +107,19 @@ int main(int argc, char* argv[]){
         std::cout << sendCommand(ss.str());
       } else if (result.count("clear")){
         command = "clear";
+        std::cout << sendCommand(command) << std::endl;
       } else if (result.count("delete")){
         command = "delete " + result["delete"].as<std::string>();
+        std::cout << sendCommand(command) << std::endl;
+      } else if (result.count("run")){
+        command = "run";
+        std::cout << sendCommand(command) << std::endl;
+      } else if (result.count("pause")){
+        command = "pause";
+        std::cout << sendCommand(command) << std::endl;
       } else if (result.count("list")){
         command = "list";
-        std::cout << sendCommand(command);
+        std::cout << sendCommand(command) << std::endl;
       } else if (result.count("log")){
         int nLines = result["log"].as<int>();
         Logger::printLogs(nLines);

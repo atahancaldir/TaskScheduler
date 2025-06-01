@@ -14,6 +14,7 @@ class BaseQueue{
     const std::vector<Task>& getQueue() const;
     bool isEmpty() const { return size == 0; }
     size_t getSize() const { return size; }
+    void clear();
 
   protected:
     std::vector<Task> array;
