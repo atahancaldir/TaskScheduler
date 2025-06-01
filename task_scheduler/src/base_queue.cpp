@@ -12,6 +12,9 @@ const std::vector<Task>& BaseQueue::getQueue() const {
 }
 
 void BaseQueue::clear(){
+  for(auto task : array){
+    delete &task;
+  }
   array.clear();
   size = 0;
 }

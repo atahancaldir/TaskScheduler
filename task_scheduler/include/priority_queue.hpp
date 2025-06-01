@@ -8,7 +8,7 @@ class PriorityQueue : public BaseQueue{
     void insertTask(const Task&) override;
     Task* getHighestPriority();
     Task extractHighestPriority();
-    void deleteTask(const Task&) override;
+    void deleteTask(const std::string&) override;
     
   private:
     void buildHeap(const std::vector<Task>&);

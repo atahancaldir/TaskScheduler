@@ -103,8 +103,7 @@ int main(int argc, char* argv[]){
         ss << command << " " << taskCommand;
         ss << constants::TASK_BUILDER_DELIMITER;
         ss << taskPriority;
-        std::cout << ss.str() << std::endl;
-        std::cout << sendCommand(ss.str());
+        std::cout << sendCommand(ss.str()) << std::endl;
       } else if (result.count("clear")){
         command = "clear";
         std::cout << sendCommand(command) << std::endl;

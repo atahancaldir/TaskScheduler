@@ -8,11 +8,13 @@ Task::Task(std::string taskString){
   command = taskBuilder.at(0);
   if (taskBuilder.size() > 1)
     priority = stoi(taskBuilder.at(1));
+  else
+    priority = -1;
   id = utils::generateUUID();
   status = TaskStatus::pending;
 }
 
-Task::Task(std::string command_, int priority_) : 
+Task::Task(std::string command_, int priority_=0) : 
           command(command_), priority(priority_){
   id = utils::generateUUID();
   status = TaskStatus::pending;

@@ -3,6 +3,7 @@
 #include "priority_queue.hpp"
 #include "task_queue.hpp"
 #include "task.hpp"
+#include "logger.hpp"
 #include <iostream>
 #include <sstream>
 
@@ -23,12 +24,16 @@ SchedulingType Scheduler::getSchedulingType(){
 }
 
 bool Scheduler::addTask(std::string taskString){
-  Task* task = new Task(taskString);
+  Task task(taskString);
+  queue->insertTask(task);
+  Logger::log("Task is added to queue: " + task.id);
   return true;
 }
 
 bool Scheduler::deleteTask(std::string taskID){
-
+  queue->deleteTask(taskID);
+  Logger::log("Task is deleted from queue: " + taskID);
+  return true;
 }
 
 bool Scheduler::run(){
@@ -36,7 +41,7 @@ bool Scheduler::run(){
 }
 
 bool Scheduler::pause(){
-  
+
 }
 
 void Scheduler::clearQueue(){
@@ -52,7 +57,7 @@ std::string Scheduler::getQueueStatus() {
 
     TablePrinter tp;
     tp.addColumn("Order", 5);
-    tp.addColumn("Task ID", 20);
+    tp.addColumn("Task ID", 50);
     tp.addColumn("Task Command", 50);
     tp.addColumn("Priority", 10);
     tp.addColumn("Status", 10);

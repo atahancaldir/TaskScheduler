@@ -101,8 +101,5 @@ void TablePrinter::clearCurrentRow() {
 
 TablePrinter& TablePrinter::operator<<(const std::string& item) {
     currentRow.push_back(item);
-    if(currentRow.size() == columns.size()) {
-        clearCurrentRow();
-    }
     return *this;
 }
