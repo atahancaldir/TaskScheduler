@@ -1,10 +1,7 @@
 #include "priority_queue.hpp"
 #include <iostream>
 
-PriorityQueue::PriorityQueue(size_t capacity_) : capacity(capacity_){
-  size = 0;
-  array.resize(capacity_);
-}
+PriorityQueue::PriorityQueue(size_t capacity_) : BaseQueue(capacity_) {}
 
 // Restore heap order at index i
 void PriorityQueue::heapify(int i){
@@ -99,9 +96,4 @@ void PriorityQueue::deleteTask(Task& task){
 
   array[index] = array[--size];
   heapify(index);
-}
-
-// Return the priority queue
-const std::vector<Task>& PriorityQueue::getQueue() const {
-  return array;
 }
