@@ -1,12 +1,21 @@
 #include "task.hpp"
 #include "utils.hpp"
 #include <string>
+#include <vector>
 
-Task::Task(std::string name_, std::function<void()> func, int priority_) : 
-          name(name_), priority(priority_){
+Task::Task(std::string taskString){
+  std::vector<std::string> taskBuilder = utils::splitString(taskString, "::");
+  command = taskBuilder.at(0);
+  if (taskBuilder.size() > 1)
+    priority = stoi(taskBuilder.at(1));
   id = utils::generateUUID();
-  execute = func;
-  status = pending;
+  status = TaskStatus::pending;
+}
+
+Task::Task(std::string command_, int priority_) : 
+          command(command_), priority(priority_){
+  id = utils::generateUUID();
+  status = TaskStatus::pending;
 }
 
 TaskStatus Task::getStatus() const { return status; }

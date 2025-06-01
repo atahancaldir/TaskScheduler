@@ -20,8 +20,13 @@ enum class TaskStatus {
 // Conversion maps
 namespace constants {
   const std::unordered_map<SchedulingType, std::string> SCHEDULER_TYPE_NAMES = {
-      {SchedulingType::fcfs, "First-Come First-Served"},
-      {SchedulingType::roundRobin, "Round Robin"}
+      {SchedulingType::fcfs, "fcfs"},
+      {SchedulingType::roundRobin, "round-robin"}
+  };
+
+  const std::unordered_map<SchedulingType, std::string> SCHEDULER_TYPE_PRETTY_NAMES = {
+      {SchedulingType::fcfs, "fcfs"},
+      {SchedulingType::roundRobin, "round-robin"}
   };
 
   const std::unordered_map<std::string, SchedulingType> SCHEDULER_TYPE_VALUES = {
@@ -36,4 +41,6 @@ namespace constants {
       {TaskStatus::killed, "killed"},
       {TaskStatus::failed, "failed"}
   };
+
+  const std::string TASK_BUILDER_DELIMITER = "::";
 }

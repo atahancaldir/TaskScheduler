@@ -159,24 +159,26 @@ void Daemon::handleClientConnection(int client_fd){
 
 // Handle command coming from CLI in the background
 void Daemon::handleCommand(const std::string& command, int client_fd){
-  std::istringstream iss(command);
-  std::string cmd;
-  iss >> cmd;
-
+  std::string cmd = command.substr(0, command.find(" "));
   std::string response;
 
+  Logger::log("Background received command: " + command);
+
   if (cmd == "add"){
-    // TODO: handle command
+    std::string taskString = command.substr(command.find(" ")+1);
+    if (scheduler_->addTask(taskString)){
+      response = "Task added to queue successfully";
+    } else{
+      response = "Task could not be added to queue";
+    }
   } else if (cmd == "clear"){
     // TODO: handle command
-  } else if (cmd == "status"){
-    // TODO: handle command
-  }else if (cmd == "delete"){
+  } else if (cmd == "delete"){
     // TODO: handle command
   } else if (cmd == "list"){
     response = scheduler_->getQueueStatus();
   } else if (cmd == "algorithm"){
-    response = scheduler_->getQueueStatus();
+    response = constants::SCHEDULER_TYPE_NAMES.at(scheduler_->getSchedulingType());
   }else if (cmd == "stop"){
     stop();
   }
@@ -185,11 +187,11 @@ void Daemon::handleCommand(const std::string& command, int client_fd){
 }
 
 // Send command from CLI to background
-bool Daemon::sendCommand(const std::string& command){
+std::string Daemon::sendCommand(const std::string& command){
   int sock = socket(AF_UNIX, SOCK_STREAM, 0);
   if (sock < 0){
     Logger::log("Failed to create a client socket");
-    return false;
+    return std::string();
   }
 
   struct sockaddr_un addr;
@@ -200,22 +202,23 @@ bool Daemon::sendCommand(const std::string& command){
   if (connect(sock, (struct sockaddr*)&addr, sizeof(addr)) < 0){
     Logger::log("Failed to connect to daemon");
     close(sock);
-    return false;
+    return std::string();
   }
 
   if (send(sock, command.c_str(), command.length(), 0) < 0) {
     Logger::log("Failed to send command");
     close(sock);
-    return false;
+    return std::string();
   }
 
   char buffer[1024];
   ssize_t bytes = recv(sock, buffer, sizeof(buffer) - 1, 0);
+  std::string response;
   if (bytes > 0) {
     buffer[bytes] = '\0';
-    std::cout << buffer << std::endl;
+    response = std::string(buffer);
   }
 
   close(sock);
-  return true;
+  return response;
 }

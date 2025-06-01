@@ -7,16 +7,17 @@
 class Task{
   public:
     std::string id;
-    std::string name;
+    std::string command;
     int priority;
-    std::function<void()> execute;
-
+    
     Task() = default;
-    Task(std::string, std::function<void()>, int);
+    Task(std::string);
+    Task(std::string, int);
     TaskStatus getStatus() const;
     void start();
     bool operator==(const Task&) const;
 
   private:
     TaskStatus status;
+    std::function<void()> execute;
 };

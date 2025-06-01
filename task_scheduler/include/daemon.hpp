@@ -4,6 +4,8 @@
 #include <memory>
 #include <functional>
 #include "scheduler.hpp"
+#include "constants.hpp"
+#include "utils.hpp"
 
 class Daemon{
   public:
@@ -12,11 +14,11 @@ class Daemon{
     Daemon(const Daemon&) = delete;
     Daemon& operator=(const Daemon&) = delete;
 
-    bool start(SchedulingType schedulingType = fcfs);
+    bool start(SchedulingType schedulingType = SchedulingType::fcfs);
     void stop();
     bool isRunning() const;
 
-    bool sendCommand(const std::string& command);
+    std::string sendCommand(const std::string& command);
     void handleCommand(const std::string& command, int client_fd);
   
   private:

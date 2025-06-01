@@ -9,6 +9,7 @@ class Scheduler{
     Scheduler(SchedulingType);
     SchedulingType getSchedulingType();
     std::string getQueueStatus();
+    bool addTask(std::string);
 
   private:
     PriorityQueue pq;
