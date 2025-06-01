@@ -2,11 +2,11 @@
 
 #include <vector>
 #include "task.hpp"
+#include "queue_interface.hpp"
 
-class PriorityQueue{
+class PriorityQueue : public ITaskQueue{
   public:
     PriorityQueue(size_t=10);
-    void buildHeap(const std::vector<Task>&);
     void insertTask(const Task&);
     Task* getHighestPriority();
     Task extractHighestPriority();
@@ -18,5 +18,6 @@ class PriorityQueue{
     int size;
     int capacity;
 
+    void buildHeap(const std::vector<Task>&);
     void heapify(int);
 };
