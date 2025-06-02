@@ -7,14 +7,11 @@ BaseQueue::BaseQueue(size_t capacity_){
 }
 
 // Return the priority queue
-const std::vector<Task>& BaseQueue::getQueue() const {
+std::vector<Task>& BaseQueue::getQueue() {
   return array;
 }
 
 void BaseQueue::clear(){
-  for(auto task : array){
-    delete &task;
-  }
   array.clear();
   size = 0;
 }
