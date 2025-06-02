@@ -8,9 +8,10 @@
 #include <sstream>
 
 Scheduler::Scheduler(SchedulingType schedulerType_) : schedulerType(schedulerType_){
-  if (schedulerType == SchedulingType::fcfs){
+  if (schedulerType == SchedulingType::fcfs ||
+      schedulerType == SchedulingType::roundRobin){
     queue = new TaskQueue();
-  } else if (schedulerType == SchedulingType::roundRobin){
+  } else {
     queue = new PriorityQueue();
   }
 }
@@ -57,7 +58,7 @@ std::string Scheduler::getQueueStatus() {
 
     TablePrinter tp;
     tp.addColumn("Order", 5);
-    tp.addColumn("Task ID", 50);
+    tp.addColumn("Task ID", 40);
     tp.addColumn("Task Command", 50);
     tp.addColumn("Priority", 10);
     tp.addColumn("Status", 10);
@@ -67,10 +68,15 @@ std::string Scheduler::getQueueStatus() {
     int order = 0;
     for(const Task& task : queue->getQueue()) {
       if(task.id.empty()) continue;
+
+      std::string formattedTaskCommand = task.command;
+      if (formattedTaskCommand.length() > 48){
+        formattedTaskCommand = formattedTaskCommand.substr(0, 45) + "...";
+      }
         
       tp << std::to_string(++order) 
           << task.id
-          << task.command 
+          << formattedTaskCommand
           << std::to_string(task.priority)
           << constants::TASK_STATUS_NAMES.at(task.getStatus());
       ss << tp.getCurrentRow();
