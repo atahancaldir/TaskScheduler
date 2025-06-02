@@ -43,6 +43,123 @@ bool Scheduler::deleteTask(std::string taskID){
   return true;
 }
 
+void Scheduler::run(){
+  if (status.load() == SchedlerStatus::running){
+    return;
+  } else if (status.load() == SchedlerStatus::paused){
+    status = SchedlerStatus::running;
+    Logger::log("Scheduler is resuming");
+    return;
+  }
+  status = SchedlerStatus::running;
+  Logger::log("Scheduler is running");
+
+  // Initialize task executions and pause
+  {
+    std::lock_guard<std::mutex> lock(tasksMutex);
+    for (Task& task : queue->getQueue()){
+      if (task.id.empty()) continue;
+      pid_t pid = fork();
+      if (pid == 0){
+        execl("/bin/sh", "sh", "-c", task.command.c_str(), (char *)nullptr);
+        exit(1);
+      } else {
+        kill(pid, SIGSTOP); // Pause task
+        task.pid = pid;
+      }
+    }
+  }
+
+  // Start scheduling algorithm in separate thread
+  if (schedulerType == SchedulingType::roundRobin){
+    std::thread([this](){RoundRobin();}).detach();
+  } else if (schedulerType == SchedulingType::fcfs){
+    std::thread([this](){FirstComeFirstServed();}).detach();
+  }
+}
+
+void Scheduler::pause(){
+  status = SchedlerStatus::paused;
+  Logger::log("Scheduler is paused");
+}
+
+void Scheduler::stop(){
+  status = SchedlerStatus::stopped;
+  Logger::log("Scheduler is stopped");
+}
+
+void Scheduler::clearQueue(){
+  queue->clear();
+}
+
+void Scheduler::FirstComeFirstServed(){
+  Logger::log("First Come First Served started");
+  while(true){
+    {
+      std::lock_guard<std::mutex> lock(tasksMutex);
+      if (queue->getQueue().empty()) {
+        if (status.load() == SchedlerStatus::stopped) {
+          Logger::log("First Come First Served stopped");
+          return;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        continue;
+      }
+    }
+
+    // Check if scheduler is paused/stopped
+    if (status.load() == SchedlerStatus::paused){
+      Logger::log("First Come First Served paused");
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      continue;
+    } else if (status.load() == SchedlerStatus::stopped){
+      Logger::log("First Come First Served stopped");
+      std::lock_guard<std::mutex> lock(tasksMutex);
+      for(Task& task : queue->getQueue()){
+        if (task.id.empty() || task.pid <= 0) continue;
+        kill(task.pid, SIGTERM); // Terminate tasks
+      }
+      return;
+    }
+
+    // Run tasks one by one in order
+    {
+      std::lock_guard<std::mutex> lock(tasksMutex);
+      std::vector<Task>& tasks = queue->getQueue();
+      if (!tasks.empty()) {
+        Task& task = tasks[0];
+        if (!task.id.empty() && task.pid > 0) {
+          if (task.getStatus() == TaskStatus::finished ||
+              task.getStatus() == TaskStatus::killed){
+            queue->deleteTask(task.id);
+          } else {
+            if (task.getStatus() != TaskStatus::running)
+              task.setStatus(TaskStatus::running);
+
+            // Check if process has exited
+            int processStatus;
+            pid_t result = waitpid(task.pid, &processStatus, WNOHANG);
+            if (result == task.pid){
+              task.setStatus(TaskStatus::finished);
+              queue->deleteTask(task.id);
+            } else if (result == -1 && errno == ESRCH) {
+              task.setStatus(TaskStatus::killed);
+              queue->deleteTask(task.id);
+            } else {
+              if (kill(task.pid, SIGCONT) == -1 && errno == ESRCH) {
+                task.setStatus(TaskStatus::killed);
+                queue->deleteTask(task.id);
+              }
+            }
+          }
+        }
+      }
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  }
+  Logger::log("First Come First Served finished");
+}
+
 void Scheduler::RoundRobin(){
   Logger::log("Round Robin started");
   while(true){
@@ -73,7 +190,7 @@ void Scheduler::RoundRobin(){
       return;
     }
 
-    // Run tasks one by one in quantum time slice
+    // Run tasks in circular order and execute each by quantum time slice
     {
       std::lock_guard<std::mutex> lock(tasksMutex);
       std::vector<Task>& tasks = queue->getQueue();
@@ -86,6 +203,9 @@ void Scheduler::RoundRobin(){
           i--;  // Adjust index since we removed an element
           continue;
         }
+
+        if (task.getStatus() != TaskStatus::running)
+          task.setStatus(TaskStatus::running);
 
         // Check if process has exited
         int processStatus;
@@ -118,52 +238,6 @@ void Scheduler::RoundRobin(){
     }
   }
   Logger::log("Round Robin finished");
-}
-
-void Scheduler::run(){
-  if (status.load() == SchedlerStatus::paused){
-    status = SchedlerStatus::running;
-    Logger::log("Scheduler is resuming");
-    return;
-  }
-  status = SchedlerStatus::running;
-  Logger::log("Scheduler is running");
-
-  // Initialize task executions and pause
-  {
-    std::lock_guard<std::mutex> lock(tasksMutex);
-    for (Task& task : queue->getQueue()){
-      if (task.id.empty()) continue;
-      pid_t pid = fork();
-      if (pid == 0){
-        execl("/bin/sh", "sh", "-c", task.command.c_str(), (char *)nullptr);
-        exit(1);
-      } else {
-        kill(pid, SIGSTOP); // Pause task
-        task.pid = pid;
-        task.setStatus(TaskStatus::running);
-      }
-    }
-  }
-
-  // Round-Robin scheduling
-  if (schedulerType == SchedulingType::roundRobin){
-    std::thread([this](){RoundRobin();}).detach();
-  }
-}
-
-void Scheduler::pause(){
-  status = SchedlerStatus::paused;
-  Logger::log("Scheduler is paused");
-}
-
-void Scheduler::stop(){
-  status = SchedlerStatus::stopped;
-  Logger::log("Scheduler is stopped");
-}
-
-void Scheduler::clearQueue(){
-  queue->clear();
 }
 
 std::string Scheduler::getQueueStatus() {

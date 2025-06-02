@@ -23,5 +23,6 @@ class Scheduler{
     std::atomic<SchedlerStatus> status;
     std::mutex tasksMutex;
 
+    void FirstComeFirstServed();
     void RoundRobin();
 };
