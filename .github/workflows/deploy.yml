@@ -1,0 +1,44 @@
+name: Deploy
+
+on:
+  push: 
+    branches: [ 'main' ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup CMake
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: '3.14'
+
+      - name: Build
+        run: |
+          cd task_scheduler
+          mkdir build
+          cd build
+          cmake ..
+          make
+      
+      - name: Test
+        run: |
+          cd task_scheduler
+          cd build  
+          ctest --output-on-failure
+        continue-on-error: false
+
+      - name: Build Docker image
+        run: docker build -t <docker-username>/task_scheduler:latest .
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Push Docker image
+        run: docker push <docker-username>/task_scheduler:latest
