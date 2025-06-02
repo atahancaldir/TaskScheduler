@@ -146,7 +146,7 @@ void Daemon::cleanupSocket(){
 }
 
 void Daemon::handleClientConnection(int client_fd){
-  char buffer[1024];
+  char buffer[constants::SOCKET_BUFFER_SIZE];
   ssize_t bytes = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
   if (bytes > 0){
     buffer[bytes] = '\0';
@@ -225,7 +225,7 @@ std::string Daemon::sendCommand(const std::string& command){
     return std::string();
   }
 
-  char buffer[1024];
+  char buffer[constants::SOCKET_BUFFER_SIZE];
   ssize_t bytes = recv(sock, buffer, sizeof(buffer) - 1, 0);
   std::string response;
   if (bytes > 0) {
