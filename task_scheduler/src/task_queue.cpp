@@ -12,13 +12,10 @@ void TaskQueue::insertTask(const Task& task){
   array[size++] = task;
 }
 
-void TaskQueue::deleteTask(const Task& task){
-  bool shifting = false;
+void TaskQueue::deleteTask(const std::string& taskID){
   for (size_t i = 0; i < size-1; i++){
-    if (array[i] == task)
-      shifting = true;
-    if (shifting){
-      array[i] = array[i+1];
+    if (array[i].id == taskID){
+      array.erase(array.begin() + i);
     }
   }
   size--;

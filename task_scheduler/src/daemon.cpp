@@ -175,7 +175,7 @@ void Daemon::handleCommand(const std::string& command, int client_fd){
     scheduler_->clearQueue();
     response = "Task queue is cleared";
   } else if (cmd == "delete"){
-    std::string taskID = command.substr(command.find(" ")+1);
+    std::string taskID = utils::splitString(command, " ")[1];
     if (scheduler_->deleteTask(taskID)){
       response = "Task is deleted";
     } else{
