@@ -67,7 +67,7 @@ void Scheduler::RoundRobin(){
       Logger::log("Round Robin stopped");
       std::lock_guard<std::mutex> lock(tasksMutex);
       for(Task& task : queue->getQueue()){
-        if (task.id.empty()) continue;
+        if (task.id.empty() || task.pid <= 0) continue;
         kill(task.pid, SIGTERM); // Terminate tasks
       }
       return;
@@ -76,12 +76,15 @@ void Scheduler::RoundRobin(){
     // Run tasks one by one in quantum time slice
     {
       std::lock_guard<std::mutex> lock(tasksMutex);
-      for (size_t i=0; i<queue->getQueue().size(); i++){
-        Task& task = queue->getQueue()[i];
-        if (task.id.empty()) continue;
+      std::vector<Task>& tasks = queue->getQueue();
+      for (size_t i = 0; i < tasks.size(); i++){
+        Task& task = tasks[i];
+        if (task.id.empty() || task.pid <= 0) continue;
         if (task.getStatus() == TaskStatus::finished ||
             task.getStatus() == TaskStatus::killed){
-              continue;
+          queue->deleteTask(task.id);
+          i--;  // Adjust index since we removed an element
+          continue;
         }
 
         // Check if process has exited
@@ -89,23 +92,29 @@ void Scheduler::RoundRobin(){
         pid_t result = waitpid(task.pid, &processStatus, WNOHANG);
         if (result == task.pid){
           task.setStatus(TaskStatus::finished);
-        } else{
-          kill(task.pid, SIGCONT); // Continue task
-          std::this_thread::sleep_for(std::chrono::milliseconds(constants::ROUND_ROBIN_QUANTUM)); // Wait quantum time slice
-          kill(task.pid, SIGSTOP); // Pause task
+          queue->deleteTask(task.id);
+          i--;  // Adjust index since we removed an element
+        } else if (result == -1 && errno == ESRCH) {
+          // Process doesn't exist
+          task.setStatus(TaskStatus::killed);
+          queue->deleteTask(task.id);
+          i--;  // Adjust index since we removed an element
+        } else {
+          // Process is still running
+          if (kill(task.pid, SIGCONT) == -1 && errno == ESRCH) {
+            task.setStatus(TaskStatus::killed);
+            queue->deleteTask(task.id);
+            i--;  // Adjust index since we removed an element
+          } else {
+            std::this_thread::sleep_for(std::chrono::milliseconds(constants::ROUND_ROBIN_QUANTUM));
+            if (kill(task.pid, SIGSTOP) == -1 && errno == ESRCH) {
+              task.setStatus(TaskStatus::killed);
+              queue->deleteTask(task.id);
+              i--;  // Adjust index since we removed an element
+            }
+          }
         }
       }
-
-      // Remove finished tasks
-      queue->getQueue().erase(
-        std::remove_if(queue->getQueue().begin(), queue->getQueue().end(), 
-                      [](const Task& t){
-                        return t.id.empty() || 
-                        t.getStatus() == TaskStatus::finished || 
-                        t.getStatus() == TaskStatus::killed;
-        }),
-        queue->getQueue().end()
-      );
     }
   }
   Logger::log("Round Robin finished");
@@ -137,13 +146,10 @@ void Scheduler::run(){
     }
   }
 
-  Logger::log("starting thread");
   // Round-Robin scheduling
   if (schedulerType == SchedulingType::roundRobin){
     std::thread([this](){RoundRobin();}).detach();
   }
-
-  Logger::log("Thread started");
 }
 
 void Scheduler::pause(){

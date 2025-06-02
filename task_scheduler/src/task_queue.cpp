@@ -13,15 +13,16 @@ void TaskQueue::insertTask(const Task& task){
 }
 
 void TaskQueue::deleteTask(const std::string& taskID){
-  for (size_t i = 0; i < size-1; i++){
+  for (size_t i = 0; i < size; i++){
     if (array[i].id == taskID){
       array.erase(array.begin() + i);
+      size--;
+      
+      if (size < capacity / 4) {
+        capacity /= 2;
+        array.resize(capacity);
+      }
+      return;  // Exit after finding and removing the task
     }
-  }
-  size--;
-
-  if (size < capacity / 4) {
-    capacity /= 2;
-    array.resize(capacity);
   }
 }
