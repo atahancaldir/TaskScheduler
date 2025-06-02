@@ -49,7 +49,7 @@ bool Daemon::start(SchedulingType schedulingType){
     handleClientConnection(client_fd);
     close(client_fd);
   }
-
+  
   return true;
 }
 
@@ -182,23 +182,19 @@ void Daemon::handleCommand(const std::string& command, int client_fd){
       response = "Task could not be deleted";
     }
   } else if (cmd == "run"){
-    if (scheduler_->run()){
-      response = "Task queue is running";
-    } else{
-      response = "Task queue could not be ran";
-    }
+    scheduler_->run();
+    response = "Task queue is running";
   } else if (cmd == "pause"){
-    if (scheduler_->pause()){
-      response = "Task queue is paused";
-    } else{
-      response = "Task queue could not be paused";
-    }
+    scheduler_->pause();
+    response = "Task queue is paused";
   } else if (cmd == "list"){
     response = scheduler_->getQueueStatus();
   } else if (cmd == "algorithm"){
     response = constants::SCHEDULER_TYPE_NAMES.at(scheduler_->getSchedulingType());
   }else if (cmd == "stop"){
+    scheduler_->stop();
     stop();
+    response = "Task scheduler stopped";
   }
 
   send(client_fd, response.c_str(), response.length(), 0);

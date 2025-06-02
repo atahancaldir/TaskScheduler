@@ -2,6 +2,7 @@
 
 #include "base_queue.hpp"
 #include "constants.hpp"
+#include <atomic>
 
 class Scheduler{
   public:
@@ -12,10 +13,15 @@ class Scheduler{
     bool addTask(std::string);
     bool deleteTask(std::string);
     void clearQueue();
-    bool run();
-    bool pause();
+    void run();
+    void pause();
+    void stop();
 
   private:
     BaseQueue* queue;
     SchedulingType schedulerType;
+    std::atomic<SchedlerStatus> status;
+    std::mutex tasksMutex;
+
+    void RoundRobin();
 };

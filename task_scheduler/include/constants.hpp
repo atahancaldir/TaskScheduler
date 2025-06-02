@@ -9,12 +9,18 @@ enum class SchedulingType{
   roundRobin
 };
 
+enum class SchedlerStatus{
+  stopped,
+  running,
+  paused
+};
+
 enum class TaskStatus {
     pending,
     running,
+    paused,
     finished,
-    killed,
-    failed
+    killed
 };
 
 // Conversion maps
@@ -37,10 +43,11 @@ namespace constants {
   const std::unordered_map<TaskStatus, std::string> TASK_STATUS_NAMES = {
       {TaskStatus::pending, "pending"},
       {TaskStatus::running, "running"},
+      {TaskStatus::paused, "paused"},
       {TaskStatus::finished, "finished"},
-      {TaskStatus::killed, "killed"},
-      {TaskStatus::failed, "failed"}
+      {TaskStatus::killed, "killed"}
   };
 
   const std::string TASK_BUILDER_DELIMITER = "::";
+  const int ROUND_ROBIN_QUANTUM = 3; // ms
 }

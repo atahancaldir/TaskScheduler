@@ -75,8 +75,7 @@ int main(int argc, char* argv[]){
     } else if (result.count("stop")){
       if (!daemon.isRunning()) 
         return 0;
-      daemon.stop();
-      std::cout << "Task scheduler stopped" << std::endl;
+      std::cout << sendCommand("stop") << std::endl;
     }
     else{
       if (!daemon.isRunning()){
@@ -97,7 +96,7 @@ int main(int argc, char* argv[]){
         std::cout << "Command: ";
         getline(std::cin, taskCommand);
         
-        // if (schedulingType == SchedulingType::roundRobin){}
+        // if (schedulingType == SchedulingType::prioritized){}
 
         std::stringstream ss;
         ss << command << " " << taskCommand;
@@ -117,6 +116,7 @@ int main(int argc, char* argv[]){
         command = "pause";
         std::cout << sendCommand(command) << std::endl;
       } else if (result.count("list")){
+        Logger::log("Sending list request");
         command = "list";
         std::cout << sendCommand(command) << std::endl;
       } else if (result.count("log")){
