@@ -3,6 +3,7 @@
 #include "base_queue.hpp"
 #include "constants.hpp"
 #include <atomic>
+#include <mutex>
 
 class Scheduler{
   public:
