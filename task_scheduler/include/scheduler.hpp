@@ -13,6 +13,7 @@ class Scheduler{
     std::string getQueueStatus();
     bool addTask(std::string);
     bool deleteTask(std::string);
+    SchedlerStatus getStatus();
     void clearQueue();
     void run();
     void pause();

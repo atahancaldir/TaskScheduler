@@ -1,12 +1,11 @@
 #include "task.hpp"
 #include "utils.hpp"
 #include "logger.hpp"
-#include "constants.hpp"
 #include <string>
 #include <vector>
 
 Task::Task(std::string taskString){
-  std::vector<std::string> taskBuilder = utils::splitString(taskString, "::");
+  std::vector<std::string> taskBuilder = utils::splitString(taskString);
   command = taskBuilder.at(0);
   if (taskBuilder.size() > 1)
     priority = stoi(taskBuilder.at(1));

@@ -1,4 +1,5 @@
 #include "utils.hpp"
+#include "constants.hpp"
 #include <random>
 #include <sstream>
 #include <iomanip>

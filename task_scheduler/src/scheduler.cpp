@@ -31,6 +31,10 @@ SchedulingType Scheduler::getSchedulingType(){
   return schedulerType;
 }
 
+SchedlerStatus Scheduler::getStatus(){
+  return status.load();
+}
+
 bool Scheduler::addTask(std::string taskString){
   Task task(taskString);
   queue->insertTask(task);

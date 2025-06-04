@@ -16,7 +16,6 @@ class Task{
     Task(std::string, int);
     TaskStatus getStatus() const;
     void setStatus(TaskStatus);
-    void start();
     bool operator==(const Task&) const;
 
   private:
