@@ -18,7 +18,7 @@ Scheduler::Scheduler(SchedulingType schedulerType_) : schedulerType(schedulerTyp
   if (schedulerType == SchedulingType::fcfs ||
       schedulerType == SchedulingType::roundRobin){
     queue = new TaskQueue();
-  } else {
+  } else if (schedulerType == SchedulingType::priority) {
     queue = new PriorityQueue();
   }
 }
@@ -73,9 +73,11 @@ void Scheduler::run(){
 
   // Start scheduling algorithm in separate thread
   if (schedulerType == SchedulingType::roundRobin){
-    std::thread([this](){RoundRobin();}).detach();
+    std::thread([this](){ScheduleRoundRobin();}).detach();
   } else if (schedulerType == SchedulingType::fcfs){
-    std::thread([this](){FirstComeFirstServed();}).detach();
+    std::thread([this](){ScheduleFirstComeFirstServed();}).detach();
+  } else if (schedulerType == SchedulingType::priority){
+    std::thread([this](){SchedulePriority();}).detach();
   }
 }
 
@@ -93,7 +95,11 @@ void Scheduler::clearQueue(){
   queue->clear();
 }
 
-void Scheduler::FirstComeFirstServed(){
+void Scheduler::SchedulePriority(){
+ // TODO: implement
+}
+
+void Scheduler::ScheduleFirstComeFirstServed(){
   Logger::log("First Come First Served started");
   while(true){
     {
@@ -161,7 +167,7 @@ void Scheduler::FirstComeFirstServed(){
   Logger::log("First Come First Served finished");
 }
 
-void Scheduler::RoundRobin(){
+void Scheduler::ScheduleRoundRobin(){
   Logger::log("Round Robin started");
   while(true){
     {
