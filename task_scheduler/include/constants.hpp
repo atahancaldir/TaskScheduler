@@ -55,4 +55,5 @@ namespace constants {
   const std::string TASK_BUILDER_DELIMITER = "<-|::|->";
   const int ROUND_ROBIN_QUANTUM = 3; // ms
   const int SOCKET_BUFFER_SIZE = 8192; // bytes
+  const size_t MAX_QUEUE_CAPACITY = 1e6;
 }

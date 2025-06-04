@@ -1,8 +1,9 @@
 #include "base_queue.hpp"
+#include <cmath>
 
 BaseQueue::BaseQueue(size_t capacity_){
   size = 0;
-  capacity = capacity_;
+  capacity = std::min(capacity_, constants::MAX_QUEUE_CAPACITY);
   array.resize(capacity_);
 }
 

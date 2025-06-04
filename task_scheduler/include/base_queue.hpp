@@ -19,5 +19,5 @@ class BaseQueue{
   protected:
     std::vector<Task> array;
     int size;
-    int capacity;
+    size_t capacity;
 };

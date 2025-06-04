@@ -79,7 +79,6 @@ void PriorityQueue::deleteTask(const std::string& taskID){
   int index = -1;
   for(int i=0; i<size; i++){
     if(array[i].id == taskID){
-      delete &array[i];
       index = i;
       break;
     }

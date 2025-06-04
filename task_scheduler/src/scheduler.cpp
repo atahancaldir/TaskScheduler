@@ -17,14 +17,10 @@ Scheduler::Scheduler(SchedulingType schedulerType_) : schedulerType(schedulerTyp
   status = SchedlerStatus::stopped;
   if (schedulerType == SchedulingType::fcfs ||
       schedulerType == SchedulingType::roundRobin){
-    queue = new TaskQueue();
+    queue = std::make_unique<TaskQueue>();
   } else if (schedulerType == SchedulingType::priority) {
-    queue = new PriorityQueue();
+    queue = std::make_unique<PriorityQueue>();
   }
-}
-
-Scheduler::~Scheduler(){
-  delete queue;
 }
 
 SchedulingType Scheduler::getSchedulingType(){
@@ -105,6 +101,16 @@ void Scheduler::pause(){
 
 void Scheduler::stop(){
   status = SchedlerStatus::stopped;
+
+  std::lock_guard<std::mutex> lock(tasksMutex);
+  for (Task& task : queue->getQueue()){
+    if (task.pid > 0){
+      kill(task.pid, SIGTERM);
+      waitpid(task.pid, nullptr, 0);
+    }
+  }
+  queue->clear();
+
   Logger::log("Scheduler is stopped");
 }
 

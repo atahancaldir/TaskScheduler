@@ -8,7 +8,6 @@
 class Scheduler{
   public:
     Scheduler(SchedulingType);
-    ~Scheduler();
     SchedulingType getSchedulingType();
     std::string getQueueStatus();
     bool addTask(std::string);
@@ -20,7 +19,7 @@ class Scheduler{
     void stop();
 
   private:
-    BaseQueue* queue;
+    std::unique_ptr<BaseQueue> queue;
     SchedulingType schedulerType;
     std::atomic<SchedlerStatus> status;
     std::mutex tasksMutex;
