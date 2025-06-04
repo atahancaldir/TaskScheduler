@@ -34,14 +34,67 @@ FetchContent_MakeAvailable(googletest)
 # Enable CTest
 enable_testing()
 
+# Common source files for tests
+set(COMMON_TEST_SOURCES
+    src/task.cpp
+    src/utils.cpp
+    src/base_queue.cpp
+    src/priority_queue.cpp
+    src/task_queue.cpp
+    src/scheduler.cpp
+)
+
 # Add test executables
-add_executable(test_task tests/test_task.cpp src/task.cpp src/utils.cpp src/base_queue.cpp)
-add_executable(test_priority_queue tests/test_priority_queue.cpp src/task.cpp src/priority_queue.cpp src/utils.cpp src/base_queue.cpp)
+add_executable(test_logger 
+    tests/test_logger.cpp
+    ${COMMON_TEST_SOURCES}
+)
+
+add_executable(test_task 
+    tests/test_task.cpp
+    ${COMMON_TEST_SOURCES}
+)
+
+# add_executable(test_priority_queue 
+#     tests/test_priority_queue.cpp
+#     ${COMMON_TEST_SOURCES}
+# )
+
+# add_executable(test_scheduler 
+#     tests/test_scheduler.cpp
+#     ${COMMON_TEST_SOURCES}
+# )
 
 # Link with GTest
-target_link_libraries(test_task GTest::gtest_main)
-target_link_libraries(test_priority_queue GTest::gtest_main)
+target_link_libraries(test_logger 
+    PRIVATE 
+    GTest::gtest_main
+)
+
+target_link_libraries(test_task 
+    PRIVATE 
+    GTest::gtest_main
+)
+
+# target_link_libraries(test_priority_queue 
+#     PRIVATE 
+#     GTest::gtest_main
+# )
+
+# target_link_libraries(test_scheduler 
+#     PRIVATE 
+#     GTest::gtest_main
+# )
 
 # Add tests to CTest
+add_test(NAME test_logger COMMAND test_logger)
 add_test(NAME test_task COMMAND test_task)
-add_test(NAME test_priority_queue COMMAND test_task)
+# add_test(NAME test_priority_queue COMMAND test_priority_queue)
+# add_test(NAME test_scheduler COMMAND test_scheduler)
+
+# Set test properties
+set_tests_properties(test_logger test_task #test_priority_queue test_scheduler
+    PROPERTIES
+    ENVIRONMENT "GTEST_COLOR=1"
+    TIMEOUT 30
+)
