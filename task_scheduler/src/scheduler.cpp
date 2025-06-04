@@ -37,6 +37,15 @@ SchedlerStatus Scheduler::getStatus(){
 
 bool Scheduler::addTask(std::string taskString){
   Task task(taskString);
+
+  if (status.load() == SchedlerStatus::running ||
+      status.load() == SchedlerStatus::paused){
+    {
+      std::lock_guard<std::mutex> lock(tasksMutex);
+      CreateTaskProcesses(task);
+    }
+  }
+
   queue->insertTask(task);
   Logger::log("Task is added to queue: " + task.id);
   return true;
@@ -46,6 +55,19 @@ bool Scheduler::deleteTask(std::string taskID){
   queue->deleteTask(taskID);
   Logger::log("Task is deleted from queue: " + taskID);
   return true;
+}
+
+// Initialize task executions and pause
+void Scheduler::CreateTaskProcesses(Task& task){
+  if (task.id.empty() || task.pid != -1) return;
+  pid_t pid = fork();
+  if (pid == 0){
+    execl("/bin/sh", "sh", "-c", task.command.c_str(), (char *)nullptr);
+    exit(1);
+  } else {
+    kill(pid, SIGSTOP); // Pause task
+    task.pid = pid;
+  }
 }
 
 void Scheduler::run(){
@@ -59,19 +81,10 @@ void Scheduler::run(){
   status = SchedlerStatus::running;
   Logger::log("Scheduler is running");
 
-  // Initialize task executions and pause
   {
     std::lock_guard<std::mutex> lock(tasksMutex);
     for (Task& task : queue->getQueue()){
-      if (task.id.empty()) continue;
-      pid_t pid = fork();
-      if (pid == 0){
-        execl("/bin/sh", "sh", "-c", task.command.c_str(), (char *)nullptr);
-        exit(1);
-      } else {
-        kill(pid, SIGSTOP); // Pause task
-        task.pid = pid;
-      }
+      CreateTaskProcesses(task);
     }
   }
 
@@ -268,23 +281,26 @@ std::string Scheduler::getQueueStatus() {
     
     ss << tp.getHeader();
 
-    int order = 0;
-    for(const Task& task : queue->getQueue()) {
-      if(task.id.empty()) continue;
+    {
+      std::lock_guard<std::mutex> lock(tasksMutex);
+      int order = 0;
+      for(const Task& task : queue->getQueue()) {
+        if(task.id.empty()) continue;
 
-      std::string formattedTaskCommand = task.command;
-      if (formattedTaskCommand.length() > 48){
-        formattedTaskCommand = formattedTaskCommand.substr(0, 45) + "...";
+        std::string formattedTaskCommand = task.command;
+        if (formattedTaskCommand.length() > 48){
+          formattedTaskCommand = formattedTaskCommand.substr(0, 45) + "...";
+        }
+          
+        tp << std::to_string(++order) 
+            << task.id
+            << formattedTaskCommand
+            << std::to_string(task.priority)
+            << constants::TASK_STATUS_NAMES.at(task.getStatus())
+            << std::to_string(task.pid);
+        ss << tp.getCurrentRow();
+        tp.clearCurrentRow();
       }
-        
-      tp << std::to_string(++order) 
-          << task.id
-          << formattedTaskCommand
-          << std::to_string(task.priority)
-          << constants::TASK_STATUS_NAMES.at(task.getStatus())
-          << std::to_string(task.pid);
-      ss << tp.getCurrentRow();
-      tp.clearCurrentRow();
     }
 
     ss << tp.getFooter();

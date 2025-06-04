@@ -25,6 +25,8 @@ class Scheduler{
     std::atomic<SchedlerStatus> status;
     std::mutex tasksMutex;
 
+    void CreateTaskProcesses(Task&);
+
     void SchedulePriority();
     void ScheduleFirstComeFirstServed();
     void ScheduleRoundRobin();
