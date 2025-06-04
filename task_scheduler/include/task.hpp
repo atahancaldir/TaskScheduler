@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <functional>
+#include <chrono>
 #include "constants.hpp"
 
 class Task{
@@ -17,7 +17,9 @@ class Task{
     TaskStatus getStatus() const;
     void setStatus(TaskStatus);
     bool operator==(const Task&) const;
+    std::string getDuration() const;
 
   private:
     TaskStatus status;
+    std::chrono::steady_clock::time_point startTime;
 };
