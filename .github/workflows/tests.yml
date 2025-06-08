@@ -1,0 +1,33 @@
+name: Tests
+
+on:
+  push:
+    branches: [ 'main', 'dev' ]
+  pull_request:
+    branches: [ 'main', 'dev' ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup CMake
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: '3.14'
+
+      - name: Build
+        run: |
+          cd task_scheduler
+          mkdir build
+          cd build
+          cmake ..
+          make
+      
+      - name: Test
+        run: |
+          cd task_scheduler
+          cd build  
+          ctest --output-on-failure
