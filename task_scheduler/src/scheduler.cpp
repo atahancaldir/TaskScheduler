@@ -286,7 +286,8 @@ std::string Scheduler::getQueueStatus() {
     tp.addColumn("Order", 7);
     tp.addColumn("Task ID", 40);
     tp.addColumn("Task Command", 50);
-    tp.addColumn("Priority", 8);
+    if (schedulerType == SchedulingType::priority) 
+      tp.addColumn("Priority", 8);
     tp.addColumn("Status", 10);
     tp.addColumn("Duration", 10);
     tp.addColumn("PID", 8);
@@ -306,9 +307,10 @@ std::string Scheduler::getQueueStatus() {
           
         tp << std::to_string(++order) 
             << task.id
-            << formattedTaskCommand
-            << std::to_string(task.priority)
-            << constants::TASK_STATUS_NAMES.at(task.getStatus())
+            << formattedTaskCommand;
+        if (schedulerType == SchedulingType::priority)
+          tp << std::to_string(task.priority);
+        tp << constants::TASK_STATUS_NAMES.at(task.getStatus())
             << task.getDuration()
             << std::to_string(task.pid);
         ss << tp.getCurrentRow();

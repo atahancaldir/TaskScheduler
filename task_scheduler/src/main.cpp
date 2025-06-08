@@ -123,11 +123,10 @@ int main(int argc, char* argv[]){
         command = "list";
         std::cout << sendCommand(command) << std::endl;
       } else if (result.count("monitor")){        
-        std::cout << "Monitoring tasks in real-time. Press Ctrl+C to exit." << std::endl;
         while (true) {
           std::cout << "\033[2J\033[1;1H"; // Clear screen and move cursor to top-left
-          std::cout << "----------------------------------------" << std::endl;
           std::cout << sendCommand("list") << std::endl;
+          std::cout << "Press Ctrl+C to exit" << std::endl;
           std::this_thread::sleep_for(std::chrono::seconds(1));
         }
       } else if (result.count("log")){
