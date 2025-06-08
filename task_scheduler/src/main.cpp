@@ -26,7 +26,7 @@ int main(int argc, char* argv[]){
   options.add_options()
   ("a,add", "Add a new task")
   ("c,clear", "Clear the task queue")
-  ("d,delete", "Delete a task", cxxopts::value<std::string>())
+  ("d,delete", "Delete a task by task ID", cxxopts::value<std::string>())
   ("h,help", "Print usage")
   ("l,list", "List all tasks")
   ("m,monitor", "Monitor tasks in real-time")
@@ -76,6 +76,10 @@ int main(int argc, char* argv[]){
       if (!daemon.isRunning()) 
         return 0;
       std::cout << sendCommand("stop") << std::endl;
+    } else if (result.count("log")){
+      int nLines = result["log"].as<int>();
+      Logger::printLogs(nLines);
+      return 0;
     }
     else{
       if (!daemon.isRunning()){
@@ -129,10 +133,6 @@ int main(int argc, char* argv[]){
           std::cout << "Press Ctrl+C to exit" << std::endl;
           std::this_thread::sleep_for(std::chrono::seconds(1));
         }
-      } else if (result.count("log")){
-        int nLines = result["log"].as<int>();
-        Logger::printLogs(nLines);
-        return 0;
       }
     }
   } catch(const std::exception& e){
