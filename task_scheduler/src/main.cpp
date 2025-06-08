@@ -5,6 +5,8 @@
 #include <iostream>
 #include <functional>
 #include <string>
+#include <thread>
+#include <chrono>
 
 std::string sendCommand(std::string command){
   if (!command.empty()){
@@ -27,6 +29,7 @@ int main(int argc, char* argv[]){
   ("d,delete", "Delete a task", cxxopts::value<std::string>())
   ("h,help", "Print usage")
   ("l,list", "List all tasks")
+  ("m,monitor", "Monitor tasks in real-time")
   ("r,run", "Run/resume task scheduler")
   ("p,pause", "Pause task scheduler")
   ("log", "Show n lines of logs", cxxopts::value<int>()->default_value("10")->implicit_value("10"))
@@ -119,6 +122,14 @@ int main(int argc, char* argv[]){
         Logger::log("Sending list request");
         command = "list";
         std::cout << sendCommand(command) << std::endl;
+      } else if (result.count("monitor")){        
+        std::cout << "Monitoring tasks in real-time. Press Ctrl+C to exit." << std::endl;
+        while (true) {
+          std::cout << "\033[2J\033[1;1H"; // Clear screen and move cursor to top-left
+          std::cout << "----------------------------------------" << std::endl;
+          std::cout << sendCommand("list") << std::endl;
+          std::this_thread::sleep_for(std::chrono::seconds(1));
+        }
       } else if (result.count("log")){
         int nLines = result["log"].as<int>();
         Logger::printLogs(nLines);
