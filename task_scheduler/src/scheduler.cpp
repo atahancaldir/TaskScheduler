@@ -104,11 +104,6 @@ void Scheduler::run(){
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         continue;
       } else if (status.load() == SchedlerStatus::stopped){
-        std::lock_guard<std::mutex> lock(tasksMutex);
-        for(Task& task : queue->getQueue()){
-          if (task.id.empty() || task.pid <= 0) continue;
-          kill(task.pid, SIGTERM); // Terminate tasks
-        }
         return;
       }
 
@@ -144,7 +139,7 @@ void Scheduler::stop(){
 
   std::lock_guard<std::mutex> lock(tasksMutex);
   for (Task& task : queue->getQueue()){
-    if (task.pid > 0){
+    if (!task.id.empty() && task.pid > 0){
       kill(task.pid, SIGTERM);
       waitpid(task.pid, nullptr, 0);
     }
