@@ -76,24 +76,20 @@ Task PriorityQueue::extractHighestPriority(){
 
 // Delete task from priority queue
 void PriorityQueue::deleteTask(const std::string& taskID){
-  int index = -1;
-  for(int i=0; i<size; i++){
+  for(size_t i=0; i<size; i++){
     if(array[i].id == taskID){
-      index = i;
-      break;
+      array.erase(array.begin() + i);
+      size--;
+
+      if (size < capacity / 4){
+        capacity /= 2;
+        array.resize(capacity);
+      }
+
+      for (int j=(size-1)/2; j>=0; j--){
+        heapify(j);
+      }
+      return;
     }
   }
-
-  if(index == -1){
-    std::cout << "Task not found" << std::endl;
-    return;
-  }
-
-  if(index == size-1){
-    size--;
-    return;
-  }
-
-  array[index] = array[--size];
-  heapify(index);
 }

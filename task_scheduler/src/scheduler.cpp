@@ -119,8 +119,8 @@ void Scheduler::run(){
       if (schedulerType == SchedulingType::roundRobin){
         ScheduleRoundRobin();
       } else if (schedulerType == SchedulingType::fcfs){
-        ScheduleFirstComeFirstServed();
-      } else if (schedulerType == SchedulingType::priority){
+        ScheduleFCFS();
+      } else if (schedulerType == SchedulingType::priority) {
         SchedulePriority();
       }
 
@@ -154,11 +154,7 @@ void Scheduler::clearQueue(){
   queue->clear();
 }
 
-void Scheduler::SchedulePriority(){
- // TODO: implement
-}
-
-void Scheduler::ScheduleFirstComeFirstServed(){
+void Scheduler::ScheduleFCFS(){
   // Run tasks one by one in order
   std::lock_guard<std::mutex> lock(tasksMutex);
   std::vector<Task>& tasks = queue->getQueue();
@@ -192,6 +188,40 @@ void Scheduler::ScheduleFirstComeFirstServed(){
   }
 }
 
+void Scheduler::SchedulePriority(){
+  // Run tasks one by one in order
+  std::lock_guard<std::mutex> lock(tasksMutex);
+  
+  // Get highest priority task
+  Task* task = dynamic_cast<PriorityQueue*>(queue.get())->getHighestPriority();
+  if (!task || task->id.empty() || task->pid <= 0) return;
+
+  // Delete task when it is finished or killed externally
+  if (task->getStatus() == TaskStatus::finished ||
+      task->getStatus() == TaskStatus::killed){
+    queue->deleteTask(task->id);
+  } else {
+    if (task->getStatus() != TaskStatus::running)
+      task->setStatus(TaskStatus::running);
+
+    // Check if process has exited
+    int processStatus;
+    pid_t result = waitpid(task->pid, &processStatus, WNOHANG);
+    if (result == task->pid){
+      task->setStatus(TaskStatus::finished);
+      queue->deleteTask(task->id);
+    } else if (result == -1 && errno == ESRCH) {
+      task->setStatus(TaskStatus::killed);
+      queue->deleteTask(task->id);
+    } else {
+      if (kill(task->pid, SIGCONT) == -1 && errno == ESRCH) {
+        task->setStatus(TaskStatus::killed);
+        queue->deleteTask(task->id);
+      }
+    }
+  }
+}
+
 void Scheduler::ScheduleRoundRobin(){
   // Run tasks in circular order and execute each by quantum time slice
   std::lock_guard<std::mutex> lock(tasksMutex);
@@ -199,6 +229,8 @@ void Scheduler::ScheduleRoundRobin(){
   for (size_t i = 0; i < tasks.size(); i++){
     Task& task = tasks[i];
     if (task.id.empty() || task.pid <= 0) continue;
+
+    // Delete task when it is finished or killed externally
     if (task.getStatus() == TaskStatus::finished ||
         task.getStatus() == TaskStatus::killed){
       queue->deleteTask(task.id);

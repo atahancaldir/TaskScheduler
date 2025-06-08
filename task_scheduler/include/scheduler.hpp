@@ -26,7 +26,7 @@ class Scheduler{
 
     void CreateTaskProcesses(Task&);
 
+    void ScheduleFCFS();
     void SchedulePriority();
-    void ScheduleFirstComeFirstServed();
     void ScheduleRoundRobin();
 };

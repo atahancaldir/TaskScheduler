@@ -21,9 +21,6 @@ std::string sendCommand(std::string command){
 int main(int argc, char* argv[]){
   cxxopts::Options options("Task Scheduler", "Task scheduler command line interface");
 
-  // add, list, start, stop
-  // regular task, timed task (periodic, start time), file-based task
-
   options.add_options()
   ("a,add", "Add a new task")
   ("c,clear", "Clear the task queue")
@@ -91,12 +88,15 @@ int main(int argc, char* argv[]){
         std::string taskCommand;
         std::string taskPriority = std::string();
 
-        // SchedulingType schedulingType = constants::SCHEDULER_TYPE_VALUES.at(sendCommand("algorithm"));
+        SchedulingType schedulingType = constants::SCHEDULER_TYPE_VALUES.at(sendCommand("algorithm"));
         
         std::cout << "Command: ";
         getline(std::cin, taskCommand);
         
-        // if (schedulingType == SchedulingType::prioritized){}
+        if (schedulingType == SchedulingType::priority){
+          std::cout << "Priority #: ";
+          getline(std::cin, taskPriority);
+        }
 
         std::stringstream ss;
         ss << command << " " << taskCommand;
