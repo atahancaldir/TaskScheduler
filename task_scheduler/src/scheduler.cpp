@@ -87,6 +87,18 @@ void Scheduler::run(){
   std::thread([this](){
     Logger::log("Scheduler thread started");
     while(true){
+      if (status.load() == SchedlerStatus::stopped) {
+        std::lock_guard<std::mutex> lock(tasksMutex);
+        for (Task& task : queue->getQueue()){
+          if (!task.id.empty() && task.pid > 0){
+            kill(task.pid, SIGTERM);
+            waitpid(task.pid, nullptr, 0);
+          }
+        }
+        queue->clear();
+        return;
+      }
+
       // Wait for a task until scheduler stops
       {
         std::lock_guard<std::mutex> lock(tasksMutex);
@@ -103,8 +115,6 @@ void Scheduler::run(){
       if (status.load() == SchedlerStatus::paused){
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         continue;
-      } else if (status.load() == SchedlerStatus::stopped){
-        return;
       }
 
       // Execute scheduling algorithm
@@ -136,16 +146,6 @@ void Scheduler::pause(){
 
 void Scheduler::stop(){
   status = SchedlerStatus::stopped;
-
-  std::lock_guard<std::mutex> lock(tasksMutex);
-  for (Task& task : queue->getQueue()){
-    if (!task.id.empty() && task.pid > 0){
-      kill(task.pid, SIGTERM);
-      waitpid(task.pid, nullptr, 0);
-    }
-  }
-  queue->clear();
-
   Logger::log("Scheduler is stopped");
 }
 
