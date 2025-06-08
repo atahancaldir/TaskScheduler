@@ -60,11 +60,6 @@ add_executable(test_priority_queue
     ${COMMON_TEST_SOURCES}
 )
 
-# add_executable(test_scheduler 
-#     tests/test_scheduler.cpp
-#     ${COMMON_TEST_SOURCES}
-# )
-
 # Link with GTest
 target_link_libraries(test_logger 
     PRIVATE 
@@ -81,19 +76,13 @@ target_link_libraries(test_priority_queue
     GTest::gtest_main
 )
 
-# target_link_libraries(test_scheduler 
-#     PRIVATE 
-#     GTest::gtest_main
-# )
-
 # Add tests to CTest
 add_test(NAME test_logger COMMAND test_logger)
 add_test(NAME test_task COMMAND test_task)
 add_test(NAME test_priority_queue COMMAND test_priority_queue)
-# add_test(NAME test_scheduler COMMAND test_scheduler)
 
 # Set test properties
-set_tests_properties(test_logger test_task test_priority_queue #test_scheduler
+set_tests_properties(test_logger test_task test_priority_queue
     PROPERTIES
     ENVIRONMENT "GTEST_COLOR=1"
     TIMEOUT 30

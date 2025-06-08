@@ -23,23 +23,6 @@ protected:
     std::unique_ptr<PriorityQueue> queue;
 };
 
-// Test fixture for Scheduler tests
-class SchedulerTest : public ::testing::Test {
-protected:
-    void SetUp() override {
-        scheduler = std::make_unique<Scheduler>(SchedulingType::priority);
-    }
-
-    void TearDown() override {
-        if (scheduler) {
-            scheduler->stop();
-            scheduler.reset();
-        }
-    }
-
-    std::unique_ptr<Scheduler> scheduler;
-};
-
 // Test fixture for Logger tests
 class LoggerTest : public ::testing::Test {
 protected:
