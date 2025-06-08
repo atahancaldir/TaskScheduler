@@ -22,4 +22,5 @@ class Task{
   private:
     TaskStatus status;
     std::chrono::steady_clock::time_point startTime;
+    std::chrono::seconds duration;
 };

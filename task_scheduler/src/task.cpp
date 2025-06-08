@@ -14,6 +14,7 @@ Task::Task(std::string taskString){
   id = utils::generateUUID();
   pid = -1;
   status = TaskStatus::pending;
+  duration = std::chrono::seconds(0);
 }
 
 Task::Task(std::string command_, int priority_=0) : 
@@ -21,30 +22,36 @@ Task::Task(std::string command_, int priority_=0) :
   id = utils::generateUUID();
   pid = -1;
   status = TaskStatus::pending;
+  duration = std::chrono::seconds(0);
 }
 
 TaskStatus Task::getStatus() const { return status; }
 
 void Task::setStatus(TaskStatus status_){
+  auto now = std::chrono::steady_clock::now();
   if (status_ == TaskStatus::running && status != TaskStatus::running){
-    startTime = std::chrono::steady_clock::now();
+    startTime = now;
+  } else if (status == TaskStatus::running && status_ != TaskStatus::running){
+    duration += std::chrono::duration_cast<std::chrono::seconds>(now - startTime);
   }
   status = status_;
   Logger::log("Task status changed to '" + constants::TASK_STATUS_NAMES.at(status) + "': " + id + ", PID: " + std::to_string(pid));
 }
 
 std::string Task::getDuration() const {
-  if (status != TaskStatus::running) {
-    return "N/A";
+  std::chrono::seconds currentDuration;
+  if (status == TaskStatus::running) {
+    // For running tasks, include current session duration
+    auto now = std::chrono::steady_clock::now();
+    currentDuration = duration + std::chrono::duration_cast<std::chrono::seconds>(now - startTime);
+  } else {
+    // For non-running tasks, just show accumulated duration
+    currentDuration = duration;
   }
-
-  auto now = std::chrono::steady_clock::now();
-  auto duration = std::chrono::duration_cast<std::chrono::seconds>(now - startTime);
-  
-  // Format duration as HH:MM:SS
-  int hours = duration.count() / 3600;
-  int minutes = (duration.count() % 3600) / 60;
-  int seconds = duration.count() % 60;
+  int totalSeconds = currentDuration.count();
+  int hours = totalSeconds / 3600;
+  int minutes = (totalSeconds % 3600) / 60;
+  int seconds = totalSeconds % 60;
   
   char buffer[9];
   snprintf(buffer, sizeof(buffer), "%02d:%02d:%02d", hours, minutes, seconds);

@@ -92,7 +92,6 @@ void Scheduler::run(){
         std::lock_guard<std::mutex> lock(tasksMutex);
         if (queue->getQueue().empty()) {
           if (status.load() == SchedlerStatus::stopped) {
-            Logger::log("First Come First Served stopped");
             return;
           }
           std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -102,11 +101,9 @@ void Scheduler::run(){
 
       // Check if scheduler is paused/stopped
       if (status.load() == SchedlerStatus::paused){
-        Logger::log("First Come First Served paused");
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         continue;
       } else if (status.load() == SchedlerStatus::stopped){
-        Logger::log("First Come First Served stopped");
         std::lock_guard<std::mutex> lock(tasksMutex);
         for(Task& task : queue->getQueue()){
           if (task.id.empty() || task.pid <= 0) continue;
@@ -132,6 +129,13 @@ void Scheduler::run(){
 
 void Scheduler::pause(){
   status = SchedlerStatus::paused;
+  std::lock_guard<std::mutex> lock(tasksMutex);
+  for(Task& task : queue->getQueue()){
+    if (task.getStatus() == TaskStatus::running){
+      kill(task.pid, SIGSTOP);
+      task.setStatus(TaskStatus::paused);
+    }
+  }
   Logger::log("Scheduler is paused");
 }
 
