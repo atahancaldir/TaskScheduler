@@ -4,6 +4,7 @@
 #include "constants.hpp"
 #include <atomic>
 #include <mutex>
+#include <memory>
 
 class Scheduler{
   public:
